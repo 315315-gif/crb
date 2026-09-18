@@ -69,7 +69,7 @@
         "react-native-fbsdk-next",
         {
           "appID": "YOUR_FACEBOOK_APP_ID",
-          "clientToken": "YOUR_FACEBOOK_CLIENT_TOKEN",
+          "clientToken": "00918a3fb7a0b1204d3fd02d11f1c386",
           "displayName": "CRB Status Checker",
           "scheme": "fbYOUR_FACEBOOK_APP_ID",
           "advertiserIDCollectionEnabled": true,
