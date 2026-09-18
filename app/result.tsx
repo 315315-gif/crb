@@ -954,7 +954,7 @@ export default function ResultScreen() {
 
             <Text style={s.clearedSub}>
               {isVipUser
-                ? 'CRB Database check completed successfully. Your credit score is good and healthy.\nReference: VIP_TERRENCE_HEALTHY'
+                ? 'CRB Database check completed successfully. Your credit score is 860 (Excellent).\nReference: VIP_TERRENCE_HEALTHY'
                 : `Your CRB blacklist record has been successfully removed.\nReference: ${clearRef || payRef}`}
             </Text>
 
@@ -970,7 +970,7 @@ export default function ResultScreen() {
               <View style={s.clearedStatsGrid}>
                 {[
                   { label: 'CRB STATUS', value: isVipUser ? 'Healthy' : 'Cleared', color: SUCCESS },
-                  { label: 'CREDIT RATING', value: isVipUser ? '850 (Good)' : 'Removed', color: SUCCESS },
+                  { label: 'CREDIT SCORE', value: isVipUser ? '860 (Excellent)' : 'Removed', color: SUCCESS },
                   { label: 'LISTINGS', value: '0 Active', color: SUCCESS },
                   { label: 'ELIGIBILITY', value: '100% Eligible', color: SUCCESS },
                 ].map((item, i) => (

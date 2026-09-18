@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
@@ -188,7 +189,7 @@ function DatePickerRow({
 function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
   const router = useRouter();
   const [form, setForm] = useState({
-    firstName: '', lastName: '', middleName: '',
+    firstName: '', lastName: '',
     idNumber: '', phone: '', email: '',
     password: '', confirmPassword: '',
     day: '', month: '', year: '',
@@ -202,6 +203,12 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
   const set = (key: string, value: string | boolean) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const openPrivacyPolicy = async () => {
+    try {
+      await WebBrowser.openBrowserAsync('https://softwaremobileappdeveloper.blogspot.com/2026/09/crb-status-checker.html');
+    } catch {}
+  };
+
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.firstName.trim()) e.firstName = 'First name is required';
@@ -213,7 +220,9 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
     }
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = 'Enter a valid email address';
-    if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
+    if (form.password.length < 6 || !/[A-Z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      e.password = 'Password must be at least 6 characters with an uppercase letter and a number';
+    }
     if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
     if (!form.day) e.day = 'required';
     if (!form.month) e.month = 'required';
@@ -262,7 +271,6 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
           data: {
             firstName: form.firstName.trim(),
             lastName: form.lastName.trim(),
-            middleName: form.middleName.trim(),
             idNumber: form.idNumber,
             phone,
             dateOfBirth: `${form.day} ${form.month} ${form.year}`,
@@ -342,15 +350,6 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
         />
       </Field>
 
-      <Field label="Middle Name" optional>
-        <Input
-          placeholder="e.g. James"
-          value={form.middleName}
-          onChangeText={(v) => set('middleName', v)}
-          autoCapitalize="words"
-        />
-      </Field>
-
       {/* ID Number */}
       <Field label="National ID Number" error={errors.idNumber}>
         <Input
@@ -399,7 +398,7 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
         <View style={[styles.passRow, !!errors.password && styles.inputError]}>
           <TextInput
             style={styles.passInput}
-            placeholder="Min. 6 characters"
+            placeholder="Min. 6 chars (e.g. Pass123)"
             placeholderTextColor={MUTED}
             value={form.password}
             onChangeText={(v) => set('password', v)}
@@ -455,9 +454,9 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
         </View>
         <Text style={styles.termsText}>
           I agree to the{' '}
-          <Text style={styles.termsLink}>Terms &amp; Conditions</Text>
+          <Text style={styles.termsLink} onPress={openPrivacyPolicy}>Terms &amp; Conditions</Text>
           {' '}and{' '}
-          <Text style={styles.termsLink}>Privacy Policy</Text>
+          <Text style={styles.termsLink} onPress={openPrivacyPolicy}>Privacy Policy</Text>
         </Text>
       </TouchableOpacity>
       {!!errors.terms && <Text style={[styles.errorText, { marginTop: -8 }]}>{errors.terms}</Text>}
