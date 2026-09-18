@@ -68,10 +68,10 @@
       [
         "react-native-fbsdk-next",
         {
-          "appID": "YOUR_FACEBOOK_APP_ID",
+          "appID": "956808540161831",
           "clientToken": "00918a3fb7a0b1204d3fd02d11f1c386",
           "displayName": "CRB Status Checker",
-          "scheme": "fbYOUR_FACEBOOK_APP_ID",
+          "scheme": "fb956808540161831",
           "advertiserIDCollectionEnabled": true,
           "autoLogAppEventsEnabled": true,
           "isAutoInitEnabled": true,
