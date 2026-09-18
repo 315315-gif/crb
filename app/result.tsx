@@ -220,6 +220,7 @@ function PaymentModal({
   amount,
   title,
   subtitle,
+  initialPhone = '',
 }: {
   visible: boolean;
   onClose: () => void;
@@ -227,21 +228,38 @@ function PaymentModal({
   amount: string;
   title: string;
   subtitle: string;
+  initialPhone?: string;
 }) {
   const [selectedPrefix, setSelectedPrefix] = useState('+254');
   const [showPrefixList, setShowPrefixList] = useState(false);
-  const [phone, setPhone] = useState('712345678');
+  const [phone, setPhone] = useState('');
   const [errors, setErrors] = useState<{ phone?: string }>({});
+
+  useEffect(() => {
+    if (visible && initialPhone) {
+      let clean = initialPhone.replace(/^\+254\s?/, '').trim();
+      setPhone(clean);
+    }
+  }, [visible, initialPhone]);
 
   const validate = () => {
     const e: { phone?: string } = {};
-    if (!phone || phone.length < 7) e.phone = 'Enter a valid phone number';
+    const digits = phone.replace(/\D/g, '');
+    if (!digits || (digits.length !== 8 && digits.length !== 9 && digits.length !== 10)) {
+      e.phone = 'Enter a valid phone number';
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleProceed = () => {
-    if (validate()) onStartPayment(`${selectedPrefix} ${phone}`, amount);
+    if (validate()) {
+      let rawDigits = phone.replace(/\D/g, '');
+      if (rawDigits.startsWith('0')) {
+        rawDigits = rawDigits.slice(1);
+      }
+      onStartPayment(`${selectedPrefix} ${rawDigits}`, amount);
+    }
   };
 
   return (
@@ -267,7 +285,7 @@ function PaymentModal({
               <View style={modal.prefixDivider} />
               <TextInput
                 style={modal.phoneInput}
-                placeholder="7XXXXXXXX"
+                placeholder="07XXXXXXXX or 01XXXXXXXX"
                 placeholderTextColor={MUTED}
                 value={phone}
                 onChangeText={(v) => setPhone(v.replace(/\D/g, ''))}
@@ -677,8 +695,10 @@ export default function ResultScreen() {
       const clearedRef = await AsyncStorage.getItem('CRB_CLEARED_REFERENCE');
       const paidTs = await AsyncStorage.getItem('CRB_PAID_TIMESTAMP');
       const paidRef = await AsyncStorage.getItem('CRB_PAID_REFERENCE');
-      const phone = await AsyncStorage.getItem('CRB_PAID_PHONE');
-      if (phone) setUserPhone(phone);
+      const savedUserPhone = await AsyncStorage.getItem('CRB_USER_PHONE');
+      const paidPhone = await AsyncStorage.getItem('CRB_PAID_PHONE');
+      if (savedUserPhone) setUserPhone(savedUserPhone);
+      else if (paidPhone) setUserPhone(paidPhone);
 
       if (clearedTs && clearedRef) {
         if (Date.now() - parseInt(clearedTs) < TWELVE_HOURS_MS) {
@@ -1001,6 +1021,7 @@ export default function ResultScreen() {
           ? 'Pay KES 200 to clear your CRB blacklist record'
           : 'Pay KES 100 to view your complete credit report'
         }
+        initialPhone={userPhone}
       />
 
       {/* Paystack WebView */}

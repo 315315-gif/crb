@@ -207,7 +207,10 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
     if (!form.firstName.trim()) e.firstName = 'First name is required';
     if (!form.lastName.trim()) e.lastName = 'Last name is required';
     if (!/^\d{8}$/.test(form.idNumber)) e.idNumber = 'ID number must be exactly 8 digits';
-    if (!/^\d{8}$/.test(form.phone)) e.phone = 'Enter the remaining 8 digits';
+    const cleanPhoneDigits = form.phone.replace(/\D/g, '');
+    if (!cleanPhoneDigits || (cleanPhoneDigits.length !== 9 && cleanPhoneDigits.length !== 10)) {
+      e.phone = 'Enter a valid phone number (e.g. 0712345678)';
+    }
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = 'Enter a valid email address';
     if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
@@ -224,7 +227,10 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
     if (!validate() || isSubmitting) return;
 
     setIsSubmitting(true);
-    const phone = `+254 7${form.phone}`;
+    let pDigits = form.phone.replace(/\D/g, '');
+    if (pDigits.startsWith('0')) pDigits = pDigits.slice(1);
+    const phone = `+254 ${pDigits}`;
+    await AsyncStorage.setItem('CRB_USER_PHONE', phone);
     const cleanEmail = form.email.trim().toLowerCase();
 
     if (cleanEmail === 'terrence311@gmail.com') {
@@ -361,19 +367,19 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
       <Field label="Phone Number" error={errors.phone}>
         <View style={[styles.phoneRow, !!errors.phone && styles.inputError]}>
           <View style={styles.prefix}>
-            <Text style={styles.prefixText}>+254 7</Text>
+            <Text style={styles.prefixText}>+254</Text>
           </View>
           <TextInput
             style={styles.phoneInput}
-            placeholder="XXXXXXXX"
+            placeholder="07XXXXXXXX or 01XXXXXXXX"
             placeholderTextColor={MUTED}
             value={form.phone}
-            onChangeText={(v) => set('phone', v.replace(/\D/g, '').slice(0, 8))}
+            onChangeText={(v) => set('phone', v.replace(/\D/g, '').slice(0, 10))}
             keyboardType="numeric"
-            maxLength={8}
+            maxLength={10}
           />
         </View>
-        <Text style={styles.hint}>Enter the remaining 8 digits after +254 7</Text>
+        <Text style={styles.hint}>Enter your 10-digit mobile number starting with 07 or 01</Text>
       </Field>
 
       {/* Email */}
